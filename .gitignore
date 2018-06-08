@@ -54,6 +54,8 @@ firebase.json
 Inspiring/Inspiring.entitlements
 ./GoogleService-Info.plist
 Inspiring/GoogleService-Info.plist
+CatCalling.xcworkspace/contents.xcworkspacedata
+CatCalling.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 
 functions/node_modules
 functions/package-lock.json
