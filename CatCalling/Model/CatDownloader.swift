@@ -1,5 +1,5 @@
 //
-//  CatManager.swift
+//  CatDownloader.swift
 //  CatCalling
 //
 //  Created by Jen Person on 4/30/18.
@@ -16,13 +16,13 @@
 import Foundation
 import Firebase
 
-final class CatManager {
+class CatDownloader {
   
   // MARK: - Properties
   
   lazy var dbRef = Firestore.firestore().collection("cats")
-  static let sharedInstance = CatManager()
-  lazy var cats = [Cat]()
+  //static let sharedInstance = CatManager()
+  //lazy var cats = [Cat]()
   var lastDoc: DocumentSnapshot?
   
   // MARK: - Initializers
@@ -31,36 +31,37 @@ final class CatManager {
 }
 
 // Firestore extension
-extension CatManager {
+extension CatDownloader {
   
   // 1 function includes an escaping completion handler
-  func downloadCats(startAt: String?, startAfter: DocumentSnapshot?,  completion: @escaping () -> Void) {
+  func downloadCats(cats: [Cat], startAt: String?, startAfter: DocumentSnapshot?,  completion: @escaping ([Cat]) -> Void) {
+    var catArray = cats
     let query = dbRef.order(by: "timestamp", descending: true).limit(to: 10)
     getQuery(query: query, startAt: startAt, startAfter: startAfter) { query in
       guard let dbQuery = query else {
-        completion()
+        completion(catArray)
         return
       }
       // 2 add a listener, or get the data you need
       dbQuery.getDocuments { snapshot, error in
         if let error = error {
-          completion()
+          completion(catArray)
           print(error)
           return
         }
         if (startAt == nil && isDynamicLink == true) {
           // don't reload data
-          completion()
+          completion(catArray)
           return
         }
         self.lastDoc = snapshot!.documents.last
         // 3 add data as needed
         for doc in snapshot!.documents {
           let cat = Cat(snapshot: doc)
-          self.cats.append(cat)
+          catArray.append(cat)
           
         }
-        completion()
+        completion(catArray)
       }
     }
   }

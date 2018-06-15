@@ -3,8 +3,15 @@
 //  CatCalling
 //
 //  Created by Jen Person on 4/30/18.
-//  Copyright © 2018 Google. All rights reserved.
+//  Copyright 2018 Google LLC
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
 //
+//  https://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and limitations under the License.
 
 import UIKit
 import Foundation
@@ -13,8 +20,11 @@ import Firebase
 var currentCat: Cat?
 
 class CatsTableViewController: UIViewController {
-
+  
   // MARK: Properties
+  var cats = [Cat]()
+  let catManager = CatDownloader()
+  let linkMaker = LinkMaker()
   let addCat = "addCat"
   let settings = "showSettings"
   let catcell = "catcell"
@@ -35,13 +45,13 @@ class CatsTableViewController: UIViewController {
   @IBOutlet weak var actvityIndicator: UIActivityIndicatorView!
   
   override func viewDidLoad() {
-      super.viewDidLoad()
+    super.viewDidLoad()
     tableView.rowHeight = UITableViewAutomaticDimension
     tableView.estimatedRowHeight = 650
     backItem.title = "Cancel"
     navigationItem.backBarButtonItem = backItem
     tableView.addSubview(self.refreshControl)
-  
+    
   }
   
   override func viewWillAppear(_ animated: Bool) {
@@ -58,7 +68,8 @@ class CatsTableViewController: UIViewController {
   func initializeCats() {
     removeData()
     actvityIndicator.startAnimating()
-    CatManager.sharedInstance.downloadCats(startAt: startCat, startAfter: nil) {
+    catManager.downloadCats(cats: cats, startAt: startCat, startAfter: nil) { catArray in
+      self.cats = catArray
       self.tableView.reloadData()
       self.actvityIndicator.stopAnimating()
       if self.refreshControl.isRefreshing {
@@ -68,17 +79,17 @@ class CatsTableViewController: UIViewController {
   }
   
   func removeData() {
-    CatManager.sharedInstance.cats = []
+    cats = []
     tableView.reloadData()
   }
-
+  
   // show share sheet to share cat
   func share() {
     guard let cat = currentCat else {
       return
     }
     
-    LinkManager.sharedInstance.createLink(propertyName: LinkManager.LinkTypes.cat.rawValue, propertyVal: cat.key!) { link, err in
+    linkMaker.createLink(propertyName: LinkMaker.LinkTypes.cat.rawValue, propertyVal: cat.key!) { link, err in
       if let err = err {
         print(err)
         return
@@ -151,22 +162,24 @@ extension CatsTableViewController {
 extension CatsTableViewController: UITableViewDelegate, UITableViewDataSource {
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return CatManager.sharedInstance.cats.count
+    return cats.count
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     
     let cell = tableView.dequeueReusableCell(withIdentifier: catcell, for: indexPath) as! CatsTableViewCell
-    cell.cat = CatManager.sharedInstance.cats[indexPath.item]
+    cell.cat = cats[indexPath.item]
     cell.layoutIfNeeded()
     return cell
   }
   
   func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-    if indexPath.row == CatManager.sharedInstance.cats.count-1 {
-      guard let lastDoc = CatManager.sharedInstance.lastDoc else { return }
+    if indexPath.row == cats.count-1 {
+      guard let lastDoc = catManager.lastDoc else { return }
       isDynamicLink = false
-      CatManager.sharedInstance.downloadCats(startAt: nil, startAfter: lastDoc) {        self.tableView.reloadData()
+      catManager.downloadCats(cats: cats, startAt: nil, startAfter: lastDoc) { catArray in
+        self.cats = catArray
+        self.tableView.reloadData()
       }
     }
   }

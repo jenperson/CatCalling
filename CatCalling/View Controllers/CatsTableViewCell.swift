@@ -2,9 +2,16 @@
 //  CatsTableViewCell.swift
 //  CatCalling
 //
-//  Created by Jen Person on 5/17/18.
-//  Copyright © 2018 Google. All rights reserved.
+//  Created by Jen Person on 4/30/18.
+//  Copyright 2018 Google LLC
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
 //
+//  https://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and limitations under the License.
 
 import UIKit
 import Foundation
@@ -14,7 +21,8 @@ import SDWebImage
 class CatsTableViewCell: UITableViewCell {
   
   // MARK: Properties
-  
+  var catManager = CatDownloader()
+  let linkMaker = LinkMaker()
   var cat: Cat! {
     didSet {
       let attributedString = attributedTextDescription()
@@ -32,7 +40,7 @@ class CatsTableViewCell: UITableViewCell {
   }
   let img = #imageLiteral(resourceName: "loading_cat").alpha(0.5)
   var isLiked = false
-
+  
   
   // MARK: Outlets
   
@@ -79,7 +87,7 @@ class CatsTableViewCell: UITableViewCell {
   
   func checkIsLiked() {
     DispatchQueue.main.async {
-      CatManager.sharedInstance.checkLikeStatus(cat: self.cat) { isLiked in
+      self.catManager.checkLikeStatus(cat: self.cat) { isLiked in
         self.isLiked = isLiked
         self.updateLikeButton(likes: self.cat.likes ?? 0)
       }
@@ -147,11 +155,11 @@ class CatsTableViewCell: UITableViewCell {
         self.changeLikeCount()
       }
     }
-
+    
   }
   
   func share(_ sender: AnyObject, cat: Cat) {
-    LinkManager.sharedInstance.createLink(propertyName: LinkManager.LinkTypes.cat.rawValue, propertyVal: cat.key!) { link, err in
+    linkMaker.createLink(propertyName: LinkMaker.LinkTypes.cat.rawValue, propertyVal: cat.key!) { link, err in
       if let err = err {
         print(err)
         return
@@ -161,7 +169,7 @@ class CatsTableViewCell: UITableViewCell {
         applicationActivities: nil)
       self.window?.rootViewController?.present(activityViewController, animated: true, completion: nil)
     }
-
+    
   }
   
 }

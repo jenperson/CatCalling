@@ -1,5 +1,5 @@
 //
-//  LinkManager.swift
+//  LinkMaker.swift
 //  CatCalling
 //
 //  Created by Jen Person on 4/30/18.
@@ -16,12 +16,11 @@
 import Foundation
 import Firebase
 
-final class LinkManager {
+class LinkMaker {
   
   // MARK: Properties
   
   static let DYNAMIC_LINK_DOMAIN = "rkw75.app.goo.gl"
-  static let sharedInstance = LinkManager()
   var longLink: URL?
   var shortLink: URL?
   
@@ -74,7 +73,7 @@ final class LinkManager {
     
     guard let link = URL(string: linkString) else { return }
     print(link)
-    let components = DynamicLinkComponents(link: link, domain: LinkManager.DYNAMIC_LINK_DOMAIN)
+    let components = DynamicLinkComponents(link: link, domain: LinkMaker.DYNAMIC_LINK_DOMAIN)
     
     let bundleID = "com.google.personjeh.InspiringQuotes"
     let iOSParams = DynamicLinkIOSParameters(bundleID: bundleID)

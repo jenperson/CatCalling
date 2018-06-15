@@ -98,7 +98,7 @@ extension AppDelegate {
   func handled(link: String) {
     let dict = parseLink(link: link)
     // if the link contains a cat
-    if let paramVal = dict[LinkManager.LinkTypes.cat.rawValue] {
+    if let paramVal = dict[LinkMaker.LinkTypes.cat.rawValue] {
       if let wd = self.window {
         var vc = wd.rootViewController
         if(vc is UINavigationController){
@@ -114,7 +114,7 @@ extension AppDelegate {
     }
       
     // if the link is a request to share
-    if let _ = dict[LinkManager.LinkTypes.share.rawValue] {
+    if let _ = dict[LinkMaker.LinkTypes.share.rawValue] {
       if let wd = self.window {
         var vc = wd.rootViewController
         if(vc is UINavigationController){
